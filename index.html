@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>과학관 미션 웹앱 프로토타입</title>
+  <style>
+    :root{
+      --bg:#08111f;
+      --panel:#111c2e;
+      --panel2:#16243a;
+      --text:#f8fafc;
+      --muted:#9fb0c5;
+      --line:#2a3b55;
+      --accent:#59d0ff;
+      --accent2:#a7f3d0;
+      --danger:#fb7185;
+      --good:#6ee7b7;
+      --shadow:0 18px 45px rgba(0,0,0,.28);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif}
+    body{
+      background:
+        radial-gradient(circle at 20% 0%, rgba(89,208,255,.12), transparent 26rem),
+        radial-gradient(circle at 95% 18%, rgba(167,243,208,.09), transparent 22rem),
+        var(--bg);
+    }
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{
+      width:min(100%,720px);
+      margin:0 auto;
+      min-height:100dvh;
+      padding:calc(18px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+    }
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      min-height:48px;margin-bottom:14px;
+    }
+    .brand{font-weight:800;letter-spacing:-.02em}
+    .ghost{
+      border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+      border-radius:999px;padding:9px 12px;
+    }
+    .ghost:active{transform:translateY(1px)}
+    .progress-wrap{margin-bottom:18px}
+    .progress-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .progress-label{font-size:13px;color:var(--muted)}
+    .dots{display:flex;gap:7px}
+    .dot{
+      width:12px;height:12px;border-radius:50%;border:1px solid var(--line);background:#0b1525;
+    }
+    .dot.done{background:var(--accent2);border-color:var(--accent2)}
+    .dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px rgba(89,208,255,.12)}
+    .bar{height:8px;border-radius:999px;background:#0d1727;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
+    .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s ease}
+    .screen{
+      flex:1;display:flex;flex-direction:column;justify-content:center;
+      animation:fade .24s ease;
+    }
+    @keyframes fade{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){
+      .screen,.bar>span{animation:none;transition:none}
+    }
+    .eyebrow{font-size:13px;letter-spacing:.14em;color:var(--accent);font-weight:800;text-transform:uppercase;margin-bottom:10px}
+    h1,h2{margin:0;letter-spacing:-.035em}
+    h1{font-size:clamp(32px,9vw,52px);line-height:1.08}
+    h2{font-size:clamp(27px,7vw,38px);line-height:1.15}
+    p{font-size:17px;line-height:1.7;margin:14px 0;color:#e5edf7}
+    .muted{color:var(--muted)}
+    .card{
+      margin-top:20px;padding:20px;border-radius:var(--radius);border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.018));
+      box-shadow:var(--shadow);
+    }
+    .location{
+      display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid var(--line);
+      background:var(--panel);border-radius:18px;margin-top:18px;
+    }
+    .pin{
+      width:42px;height:42px;display:grid;place-items:center;border-radius:14px;
+      background:rgba(89,208,255,.12);font-size:22px;flex:0 0 auto;
+    }
+    .location strong{display:block;font-size:18px;margin-bottom:5px}
+    .location span{color:var(--muted);line-height:1.55}
+    .actions{display:grid;gap:10px;margin-top:24px}
+    .btn{
+      width:100%;min-height:54px;border:none;border-radius:16px;padding:14px 18px;
+      background:var(--accent);color:#05131f;font-weight:800;font-size:17px;
+    }
+    .btn.secondary{
+      background:transparent;color:var(--text);border:1px solid var(--line);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    label{display:block;margin:18px 0 8px;font-size:14px;color:var(--muted)}
+    input[type=text]{
+      width:100%;border:1px solid var(--line);background:#091424;color:var(--text);
+      border-radius:16px;padding:16px;font-size:18px;outline:none;
+    }
+    input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(89,208,255,.1)}
+    .feedback{min-height:26px;margin-top:10px;font-size:14px}
+    .feedback.good{color:var(--good)}
+    .feedback.bad{color:var(--danger)}
+    .hint-img{
+      width:100%;aspect-ratio:16/9;border-radius:18px;border:1px solid var(--line);
+      margin-top:18px;display:grid;place-items:center;overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(89,208,255,.16), transparent 30%),
+        linear-gradient(135deg,#0e1a2e,#172740);
+    }
+    .hint-symbol{font-size:clamp(68px,24vw,130px);filter:drop-shadow(0 10px 18px rgba(0,0,0,.25))}
+    .hint-grid{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px;
+    }
+    .hint-tile{
+      aspect-ratio:1.25/1;border-radius:16px;border:1px solid var(--line);background:var(--panel);
+      display:grid;place-items:center;position:relative;overflow:hidden;
+    }
+    .hint-tile .num{
+      position:absolute;left:10px;top:8px;font-size:12px;color:var(--muted);
+    }
+    .hint-tile .symbol{font-size:46px}
+    .lock{color:#54657d;font-size:26px}
+    .story-counter{
+      display:inline-flex;align-self:flex-start;margin-top:18px;padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line);color:var(--muted);font-size:13px;
+    }
+    .complete{
+      display:inline-grid;place-items:center;width:86px;height:86px;border-radius:50%;
+      border:1px solid rgba(110,231,183,.4);background:rgba(110,231,183,.09);
+      color:var(--good);font-weight:900;margin-bottom:18px;
+    }
+    .system{
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:var(--accent2)
+    }
+    .small{font-size:13px;color:var(--muted);line-height:1.5}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">SCIENCE MISSION</div>
+      <button id="resetTopBtn" class="ghost" type="button">처음부터</button>
+    </header>
+
+    <section id="progressWrap" class="progress-wrap hidden" aria-label="미션 진행도">
+      <div class="progress-row">
+        <span id="progressLabel" class="progress-label">MISSION 1 / 4</span>
+        <div class="dots" aria-hidden="true">
+          <span class="dot" data-dot="1"></span>
+          <span class="dot" data-dot="2"></span>
+          <span class="dot" data-dot="3"></span>
+          <span class="dot" data-dot="4"></span>
+        </div>
+      </div>
+      <div class="bar"><span id="progressBar"></span></div>
+    </section>
+
+    <section id="screen" class="screen" aria-live="polite"></section>
+  </main>
+
+<script>
+(() => {
+  "use strict";
+
+  // =========================================================
+  // 콘텐츠 수정 영역
+  // - 실제 행사에서는 아래 missions / finalAnswer / ending만 바꾸면 됩니다.
+  // =========================================================
+  const missions = [
+    {
+      title: "첫 번째 신호",
+      stories: [
+        "어젯밤 과학관에서 정체를 알 수 없는 신호가 발견되었습니다.",
+        "신호를 분석해 보니 우리 몸속에서 끊임없이 움직이는 무언가와 관련이 있었습니다.",
+        "첫 번째 단서는 심장의 구조를 자세히 살펴보면 찾을 수 있습니다."
+      ],
+      locationTitle: "2층 Medical 전시관",
+      locationDetail: "심장과 혈액순환을 설명하는 전시물로 이동하세요.",
+      question: "심장에서 온몸으로 혈액을 내보내는 가장 큰 동맥의 이름은 무엇일까요?",
+      answers: ["대동맥"],
+      hintSymbol: "❤️",
+      hintText: "첫 번째 단서: 심장",
+      nextGuide: "다음 단서는 혈액이 이동하는 길을 따라가면 찾을 수 있습니다."
+    },
+    {
+      title: "두 번째 흔적",
+      stories: [
+        "첫 번째 단서는 '심장'이었습니다.",
+        "하지만 심장만으로는 신호의 의미를 알 수 없습니다.",
+        "이번에는 혈액이 우리 몸을 순환하는 경로를 찾아보세요."
+      ],
+      locationTitle: "혈액순환 전시 구역",
+      locationDetail: "혈액이 심장·폐·온몸을 오가는 과정을 보여주는 전시물을 찾으세요.",
+      question: "폐에서 산소를 받아 심장으로 돌아오는 혈액이 흐르는 혈관은 무엇일까요?",
+      answers: ["폐정맥"],
+      hintSymbol: "🫁",
+      hintText: "두 번째 단서: 폐",
+      nextGuide: "세 번째 단서는 우리 몸의 정보를 전달하는 곳에 숨어 있습니다."
+    },
+    {
+      title: "세 번째 메시지",
+      stories: [
+        "심장과 폐, 두 단서가 연결되기 시작했습니다.",
+        "신호에는 몸의 여러 기관이 서로 정보를 주고받는 흔적도 남아 있었습니다.",
+        "다음 장소에서 우리 몸의 '지휘센터'를 찾아보세요."
+      ],
+      locationTitle: "1층 Bio 전시관",
+      locationDetail: "뇌와 신경계 관련 전시물로 이동하세요.",
+      question: "우리 몸의 감각과 움직임, 생각을 조절하는 기관은 무엇일까요?",
+      answers: ["뇌", "대뇌"],
+      hintSymbol: "🧠",
+      hintText: "세 번째 단서: 뇌",
+      nextGuide: "마지막 단서는 생명 정보를 담고 있는 아주 작은 구조와 관련이 있습니다."
+    },
+    {
+      title: "마지막 조각",
+      stories: [
+        "이제 세 개의 단서가 모였습니다.",
+        "신호의 마지막 조각은 우리 몸을 이루는 수많은 세포 속에 숨겨져 있습니다.",
+        "생명 정보를 저장하는 물질의 이름을 찾아보세요."
+      ],
+      locationTitle: "세포·DNA 전시 구역",
+      locationDetail: "세포와 유전 정보를 설명하는 전시물을 찾아 이동하세요.",
+      question: "우리 몸의 유전 정보를 저장하는 물질을 알파벳 세 글자로 쓰면 무엇일까요?",
+      answers: ["DNA", "디엔에이"],
+      hintSymbol: "🧬",
+      hintText: "네 번째 단서: DNA",
+      nextGuide: "네 개의 단서가 모두 모였습니다. 이제 최종 암호를 풀어보세요."
+    }
+  ];
+
+  const finalQuestion = "심장·폐·뇌·DNA, 이 네 단서가 모두 가리키는 가장 큰 주제는 무엇일까요?";
+  const finalAnswers = ["생명", "인체", "우리 몸", "인간"];
+  const ending = [
+    "네 개의 단서는 서로 떨어진 것이 아니었습니다.",
+    "심장은 혈액을 보내고, 폐는 산소를 전달하며, 뇌는 몸을 조절하고, DNA는 생명의 정보를 간직합니다.",
+    "서로 다른 기관과 정보가 연결되어 하나의 생명 시스템을 이루고 있다는 것이 마지막 메시지였습니다."
+  ];
+
+  const STORAGE_KEY = "scienceMissionPrototype_v1";
+
+  const defaultState = {
+    stage: "start",
+    missionIndex: 0,
+    storyIndex: 0,
+    completed: [false, false, false, false],
+    hints: [false, false, false, false],
+    finished: false
+  };
+
+  let state = loadState();
+  const screen = document.getElementById("screen");
+  const progressWrap = document.getElementById("progressWrap");
+  const progressLabel = document.getElementById("progressLabel");
+  const progressBar = document.getElementById("progressBar");
+  const resetTopBtn = document.getElementById("resetTopBtn");
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {...defaultState};
+      const parsed = JSON.parse(raw);
+      return {...defaultState, ...parsed};
+    }catch(e){
+      return {...defaultState};
+    }
+  }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function resetState(){
+    state = {...defaultState, completed:[false,false,false,false], hints:[false,false,false,false]};
+    saveState();
+    render();
+  }
+
+  function normalizeAnswer(value){
+    return value.trim().replace(/\s+/g, "").toLowerCase();
+  }
+
+  function isCorrect(input, accepted){
+    const normalized = normalizeAnswer(input);
+    return accepted.some(ans => normalizeAnswer(ans) === normalized);
+  }
+
+  function setScreen(html){
+    screen.innerHTML = html;
+    screen.classList.remove("screen");
+    void screen.offsetWidth;
+    screen.classList.add("screen");
+    screen.scrollIntoView({block:"start"});
+  }
+
+  function updateProgress(){
+    const isMissionStage = !["start","resume","final","ending","complete"].includes(state.stage);
+    progressWrap.classList.toggle("hidden", !isMissionStage);
+
+    if(!isMissionStage) return;
+
+    const idx = state.missionIndex;
+    progressLabel.textContent = `MISSION ${idx + 1} / 4`;
+    const stageWeight = {story:.15, location:.35, quiz:.6, hint:.85}[state.stage] || 0;
+    const percent = Math.min(100, ((idx + stageWeight) / 4) * 100);
+    progressBar.style.width = percent + "%";
+
+    document.querySelectorAll(".dot").forEach((dot, i) => {
+      dot.classList.toggle("done", state.completed[i]);
+      dot.classList.toggle("active", i === idx && !state.completed[i]);
+    });
+  }
+
+  function hasProgress(){
+    return state.missionIndex > 0 || state.storyIndex > 0 || state.stage !== "start" || state.completed.some(Boolean);
+  }
+
+  function renderStart(){
+    progressWrap.classList.add("hidden");
+    setScreen(`
+      <div class="eyebrow">Interactive Science Quest</div>
+      <h1>과학관에 숨겨진<br>네 개의 단서를 찾아라</h1>
+      <p>스토리를 따라 전시공간을 이동하고, 현장에서 문제를 풀어 마지막 암호를 완성하세요.</p>
+      <div class="card">
+        <strong>게임 방법</strong>
+        <p class="muted" style="margin-bottom:0">
+          ① 스토리 읽기 → ② 장소 이동 → ③ 전시물 관찰 → ④ 정답 입력 → ⑤ 힌트 획득<br>
+          이 과정을 총 4번 반복합니다.
+        </p>
+      </div>
+      <div class="actions">
+        <button id="startBtn" class="btn" type="button">미션 시작</button>
+      </div>
+      <p class="small">진행 정보는 이 기기의 브라우저에만 저장됩니다.</p>
+    `);
+    document.getElementById("startBtn").addEventListener("click", () => {
+      state.stage = "story";
+      state.missionIndex = 0;
+      state.storyIndex = 0;
+      saveState();
+      render();
+    });
+  }
+
+  function renderResume(){
+    progressWrap.classList.add("hidden");
+    const nextNo = Math.min(state.missionIndex + 1, 4);
+    setScreen(`
+      <div class="eyebrow">Continue Mission</div>
+      <h2>진행 중인 미션이 있습니다</h2>
+      <p>이 기기에 저장된 진행 기록을 발견했습니다.</p>
+      <div class="card">
+        <strong>현재 진행 상태</strong>
+        <p class="muted" style="margin-bottom:0">
+          ${state.finished ? "모든 미션 완료" : `MISSION ${nextNo} 진행 중`}<br>
+          획득한 단서 ${state.hints.filter(Boolean).length} / 4
+        </p>
+      </div>
+      <div class="actions">
+        <button id="continueBtn" class="btn" type="button">이어하기</button>
+        <button id="freshBtn" class="btn secondary" type="button">처음부터 시작</button>
+      </div>
+    `);
+    document.getElementById("continueBtn").addEventListener("click", () => {
+      state.stage = state.finished ? "complete" : state.stage;
+      saveState();
+      render();
+    });
+    document.getElementById("freshBtn").addEventListener("click", resetState);
+  }
+
+  function renderStory(){
+    const m = missions[state.missionIndex];
+    const i = state.storyIndex;
+    setScreen(`
+      <div class="eyebrow">MISSION ${state.missionIndex + 1}</div>
+      <h2>${m.title}</h2>
+      <p>${m.stories[i]}</p>
+      <div class="story-counter">${i + 1} / ${m.stories.length}</div>
+      <div class="actions">
+        <button id="nextStoryBtn" class="btn" type="button">${i < m.stories.length - 1 ? "다음" : "장소 확인"}</button>
+      </div>
+    `);
+    document.getElementById("nextStoryBtn").addEventListener("click", () => {
+      if(state.storyIndex < m.stories.length - 1){
+        state.storyIndex += 1;
+      }else{
+        state.storyIndex = 0;
+        state.stage = "location";
+      }
+      saveState();
+      render();
+    });
+  }
+
+  function renderLocation(){
+    const m = missions[state.missionIndex];
+    setScreen(`
+      <div class="eyebrow">Find the Place</div>
+      <h2>다음 장소로 이동하세요</h2>
+      <p>스마트폰 화면만 보지 말고 주변을 살피며 천천히 이동해 주세요.</p>
+      <div class="location">
+        <div class="pin">📍</div>
+        <div>
+          <strong>${m.locationTitle}</strong>
+          <span>${m.locationDetail}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="arrivedBtn" class="btn" type="button">도착했어요</button>
+      </div>
+    `);
+    document.getElementById("arrivedBtn").addEventListener("click", () => {
+      state.stage = "quiz";
+      saveState();
+      render();
+    });
+  }
+
+  function renderQuiz(){
+    const m = missions[state.missionIndex];
+    setScreen(`
+      <div class="eyebrow">Field Quiz</div>
+      <h2>전시물을 관찰해 정답을 찾아보세요</h2>
+      <div class="card">
+        <p style="margin-top:0">${m.question}</p>
+        <label for="answerInput">정답</label>
+        <input id="answerInput" type="text" inputmode="text" autocomplete="off" placeholder="정답을 입력하세요" />
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+      </div>
+      <div class="actions">
+        <button id="checkBtn" class="btn" type="button">정답 확인</button>
+      </div>
+    `);
+
+    const input = document.getElementById("answerInput");
+    const feedback = document.getElementById("feedback");
+    const check = () => {
+      if(!input.value.trim()){
+        feedback.className = "feedback bad";
+        feedback.textContent = "정답을 입력해 주세요.";
+        input.focus();
+        return;
+      }
+      if(isCorrect(input.value, m.answers)){
+        feedback.className = "feedback good";
+        feedback.textContent = "정답입니다. 단서를 발견했습니다!";
+        state.completed[state.missionIndex] = true;
+        state.hints[state.missionIndex] = true;
+        state.stage = "hint";
+        saveState();
+        setTimeout(render, 450);
+      }else{
+        feedback.className = "feedback bad";
+        feedback.textContent = "아직 정답이 아닙니다. 전시물을 다시 살펴보세요.";
+        input.select();
+      }
+    };
+    document.getElementById("checkBtn").addEventListener("click", check);
+    input.addEventListener("keydown", e => {
+      if(e.key === "Enter") check();
+    });
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function renderHint(){
+    const m = missions[state.missionIndex];
+    setScreen(`
+      <div class="complete">CLEAR</div>
+      <div class="eyebrow">MISSION ${state.missionIndex + 1} COMPLETE</div>
+      <h2>단서 ${state.missionIndex + 1}을 획득했습니다</h2>
+      <div class="hint-img" role="img" aria-label="${m.hintText}">
+        <div class="hint-symbol">${m.hintSymbol}</div>
+      </div>
+      <p><strong>${m.hintText}</strong></p>
+      <p class="muted">${m.nextGuide}</p>
+      <div class="actions">
+        <button id="nextMissionBtn" class="btn" type="button">${state.missionIndex < 3 ? "다음 미션" : "최종 미션"}</button>
+      </div>
+    `);
+    document.getElementById("nextMissionBtn").addEventListener("click", () => {
+      if(state.missionIndex < 3){
+        state.missionIndex += 1;
+        state.storyIndex = 0;
+        state.stage = "story";
+      }else{
+        state.stage = "final";
+      }
+      saveState();
+      render();
+    });
+  }
+
+  function renderFinal(){
+    progressWrap.classList.add("hidden");
+    const tiles = missions.map((m, i) => `
+      <div class="hint-tile">
+        <span class="num">단서 ${i+1}</span>
+        ${state.hints[i] ? `<span class="symbol">${m.hintSymbol}</span>` : `<span class="lock">🔒</span>`}
+      </div>
+    `).join("");
+
+    setScreen(`
+      <div class="eyebrow">FINAL MISSION</div>
+      <h2>네 개의 단서를 조합하세요</h2>
+      <div class="hint-grid">${tiles}</div>
+      <div class="card">
+        <p style="margin-top:0">${finalQuestion}</p>
+        <label for="finalInput">최종 정답</label>
+        <input id="finalInput" type="text" autocomplete="off" placeholder="최종 정답을 입력하세요" />
+        <div id="finalFeedback" class="feedback" aria-live="polite"></div>
+      </div>
+      <div class="actions">
+        <button id="finalCheckBtn" class="btn" type="button">최종 정답 확인</button>
+      </div>
+    `);
+
+    const input = document.getElementById("finalInput");
+    const feedback = document.getElementById("finalFeedback");
+    const check = () => {
+      if(isCorrect(input.value, finalAnswers)){
+        feedback.className = "feedback good";
+        feedback.textContent = "최종 암호가 해제되었습니다.";
+        state.stage = "ending";
+        saveState();
+        setTimeout(render, 500);
+      }else{
+        feedback.className = "feedback bad";
+        feedback.textContent = "네 개의 단서가 공통으로 가리키는 주제를 다시 생각해 보세요.";
+        input.select();
+      }
+    };
+    document.getElementById("finalCheckBtn").addEventListener("click", check);
+    input.addEventListener("keydown", e => {
+      if(e.key === "Enter") check();
+    });
+  }
+
+  function renderEnding(){
+    progressWrap.classList.add("hidden");
+    setScreen(`
+      <div class="system">SYSTEM UNLOCKED</div>
+      <h2 style="margin-top:14px">마지막 메시지가 열렸습니다</h2>
+      <div class="card">
+        ${ending.map(p => `<p>${p}</p>`).join("")}
+      </div>
+      <div class="actions">
+        <button id="endingNextBtn" class="btn" type="button">결말 확인</button>
+      </div>
+    `);
+    document.getElementById("endingNextBtn").addEventListener("click", () => {
+      state.stage = "complete";
+      state.finished = true;
+      saveState();
+      render();
+    });
+  }
+
+  function renderComplete(){
+    progressWrap.classList.add("hidden");
+    setScreen(`
+      <div class="complete">✓</div>
+      <div class="eyebrow">MISSION COMPLETE</div>
+      <h1>과학관의 비밀을<br>찾아냈습니다</h1>
+      <p>네 개의 미션을 모두 완료했습니다. 탐험해 주셔서 감사합니다.</p>
+      <div class="card">
+        <strong>획득한 단서</strong>
+        <div class="hint-grid" style="margin-top:14px">
+          ${missions.map((m,i)=>`
+            <div class="hint-tile">
+              <span class="num">${i+1}</span>
+              <span class="symbol">${m.hintSymbol}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+      <div class="actions">
+        <button id="restartBtn" class="btn secondary" type="button">처음부터 다시 하기</button>
+      </div>
+    `);
+    document.getElementById("restartBtn").addEventListener("click", resetState);
+  }
+
+  function render(){
+    updateProgress();
+
+    switch(state.stage){
+      case "start": renderStart(); break;
+      case "resume": renderResume(); break;
+      case "story": renderStory(); break;
+      case "location": renderLocation(); break;
+      case "quiz": renderQuiz(); break;
+      case "hint": renderHint(); break;
+      case "final": renderFinal(); break;
+      case "ending": renderEnding(); break;
+      case "complete": renderComplete(); break;
+      default:
+        state.stage = "start";
+        saveState();
+        renderStart();
+    }
+    updateProgress();
+  }
+
+  resetTopBtn.addEventListener("click", () => {
+    if(confirm("현재 진행 기록을 지우고 처음부터 시작할까요?")){
+      resetState();
+    }
+  });
+
+  // 저장된 기록이 있으면 첫 진입에서 이어하기 선택 화면을 보여줍니다.
+  // 실제 진행 stage 값은 유지하므로 '이어하기'를 누르면 정확한 화면으로 돌아갑니다.
+  if(hasProgress() && !state.finished){
+    renderResume();
+  } else {
+    render();
+  }
+})();
+</script>
+</body>
+</html>
