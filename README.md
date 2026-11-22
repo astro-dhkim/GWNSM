@@ -1,64 +1,42 @@
-# Science Mission
+# 산타의 비밀 수사 파일
 
-과학관 현장용 모바일 미션 웹앱입니다.
+크리스마스 과학문화 행사에서 사용하는 9화면 모바일 웹앱입니다. 시작 → 사건 개요 → 전시실 3곳의 미션 6개 → 수사 완료 순서로 진행합니다. 외부 서비스나 빌드 없이 HTML, CSS, 자바스크립트로 실행됩니다.
 
-## 게임 흐름
+## 실행과 테스트
 
-QR 접속 → START → STORY → LOCATION → QUIZ → 종이접기 STEP 공개 → 다음 미션
+이 폴더에서 `npx --yes http-server . -p 8080 -c-1`을 실행하고 브라우저에서 `http://localhost:8080`을 엽니다. 이 명령은 Node.js가 필요하며 첫 실행 시 미리보기 서버를 다운로드합니다. 배포 URL에서도 같은 방법으로 검수할 수 있습니다. 브라우저 저장소를 일관되게 사용하려면 웹 주소로 실행하세요.
 
-총 4개의 미션을 완료하면 종이접기 4단계를 모두 확인할 수 있습니다.
+- 자동 테스트는 Node.js 22 이상에서 `node --test tests.cjs`로 실행합니다. 설정과 사진 연결, 오답·정답, 이어하기, 수령 완료 보존, 저장 실패를 검사합니다.
+- 실제 휴대폰에서 시작하고 첫 미션에서 힌트를 펼치세요. 오답은 안내만 표시하고 정답을 입력하면 **되찾은 생명 신호**가 1/6으로 바뀌는지 확인하세요.
+- 다음 미션으로 이동해 새로고침하거나 브라우저를 닫았다가 같은 주소로 다시 열어 현재 미션과 진행률을 확인하세요.
+- 여섯 미션을 끝낸 뒤 **직원확인**을 누르면 **기념품 수령 완료**가 표시됩니다. 새로고침 후 **처음부터 다시 수사하기**를 눌러도 시작 화면에서 수령 완료 표시가 유지되는지 확인하세요.
+
+## 행사 콘텐츠 교체
+
+`event.config.js`에서 제목, 이야기, 미션을 수정하고 사진을 `assets/`에 넣습니다. 기본 제공 자료는 생성 이미지와 시연용 문제입니다. 실제 전시물 사진으로 교체한 뒤 `sampleNotice`를 빈 문자열로 설정하세요.
+
+| 설정 | 편집 내용 |
+| --- | --- |
+| `eventId` | 새 행사마다 고유한 값을 설정하세요. 같은 행사의 업데이트에서는 유지해야 기존 기록을 이어갈 수 있습니다. |
+| `cover` | 시작 화면 표지 이미지의 상대 경로 |
+| `missions` | 표시 순서대로 6개. 같은 `zone`을 두 미션에 지정해 3구역을 구성합니다. |
+| `id` | 미션 고유 ID. 행사 진행 중에는 ID와 순서를 유지하세요. |
+| `image`, `alt` | 확대 사진 상대 경로와 정답을 드러내지 않는 사진 설명 |
+| `title`, `prompt`, `hint`, `note` | 미션 제목, 문제, 힌트, 정답을 맞힌 뒤 보여 줄 해설 |
+| `answers` | 허용할 정답 및 별칭 목록. 영문 대소문자, 전각 문자, 공백 차이를 정규화한 뒤 목록과 비교합니다. |
 
 ## GitHub Pages 배포
 
-1. 이 저장소의 파일을 GitHub 저장소 최상위(root)에 업로드합니다.
-2. GitHub 저장소에서 **Settings → Pages**로 이동합니다.
-3. **Build and deployment**에서 `Deploy from a branch`를 선택합니다.
-4. Branch는 `main`, Folder는 `/(root)`를 선택하고 저장합니다.
-5. 생성된 GitHub Pages 주소를 QR 코드에 연결합니다.
+1. GitHub 저장소를 만들고 이 폴더의 **내용**을 `main` 브랜치 루트에 올립니다. 루트에 `index.html`, `.nojekyll`, `assets/`가 있어야 합니다.
+2. 저장소에서 **Settings → Pages → Build and deployment → Source → Deploy from a branch**를 선택합니다. **main**, **/(root)**를 선택하고 저장합니다.
+3. 배포가 끝나면 Pages 설정에 표시된 주소를 엽니다. 프로젝트 사이트의 주소는 보통 `https://<계정>.github.io/<저장소>/`입니다. 행사 QR에 연결하기 전 모바일에서 미션과 직원확인을 점검하세요.
 
-일반적인 주소 형식:
+[GitHub Pages 공식 배포 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
-`https://사용자명.github.io/저장소명/`
+## 수령 기록의 범위와 서버 검증 대안
 
-## 파일 구조
+현재 버전은 진행 상태와 기념품 수령 기록을 별도 키에 저장합니다. 수사 재시작으로 지우는 것은 진행 기록뿐이며 수령 기록에는 만료 시간이 없습니다. 같은 브라우저 프로필과 같은 사이트에서 저장소가 유지되는 동안 새로고침하거나 브라우저를 재실행해도 기록이 남습니다.
 
-```text
-/
-├─ index.html
-├─ README.md
-├─ .nojekyll
-└─ images/
-   ├─ mission1-story.jpg
-   ├─ mission1-location.jpg
-   ├─ mission1-quiz.jpg
-   ├─ fold-step1.png
-   ├─ mission2-story.jpg
-   ├─ mission2-location.jpg
-   ├─ mission2-quiz.jpg
-   ├─ fold-step2.png
-   ├─ mission3-story.jpg
-   ├─ mission3-location.jpg
-   ├─ mission3-quiz.jpg
-   ├─ fold-step3.png
-   ├─ mission4-story.jpg
-   ├─ mission4-location.jpg
-   ├─ mission4-quiz.jpg
-   └─ fold-step4.png
-```
+다른 기기나 브라우저에는 기록이 공유되지 않습니다. 사이트 데이터 삭제, 비공개 탐색 종료, 저장소 제한 또는 개발자 도구 조작으로 상태가 사라지거나 변경될 수 있습니다. 정적 설정의 정답도 페이지 소스에서 볼 수 있습니다. **직원확인** 버튼은 현장에서 직원이 누르는 운영 절차이며 직원 인증 기능은 없습니다.
 
-## 이미지 교체
-
-실제 전시물 사진과 종이접기 도안을 기존 파일명과 동일하게 `images/` 폴더에 덮어쓰면 됩니다.
-
-권장 비율:
-- STORY / LOCATION / QUIZ: 약 1200×760 JPG
-- 종이접기 STEP: 4:3 PNG 권장
-- 스마트폰에서 잘 보이도록 접는 선과 화살표는 굵게 제작
-
-## 중요
-
-`index.html` 안의 이미지 경로는 `images/...` 형태의 상대경로를 사용합니다.
-GitHub Pages 프로젝트 사이트에서도 정상적으로 동작하도록 `/images/...` 형태의 절대경로는 사용하지 않습니다.
-
-현재 `fold-step1.png` ~ `fold-step4.png`는 구조 확인용 임시 이미지입니다.
-실제 운영 전 최종 종이접기 안내 이미지로 교체해야 합니다.
+기기 간 중복 방지가 필요하면 화면은 GitHub Pages에 유지하고 별도 HTTPS API와 데이터베이스를 두세요. 행사에서 발급한 고유 참가자 QR 또는 참가자 계정을 공통 식별자로 사용하고, API가 정답과 미션 완료를 검증하도록 구성합니다. 직원이 인증된 단말에서 QR을 스캔하면 서버가 완료 여부를 확인하고, 데이터베이스에서 `(event_id, participant_id)`에 고유 제약을 걸어 수령을 한 번만 원자적으로 확정합니다. 이미 등록된 요청에는 기존 수령 결과를 돌려주고, 직원은 서버가 신규 수령을 확정했을 때만 기념품을 지급합니다. 이 서버 방식은 설계 대안이며 현재 패키지에는 정적 버전이 들어 있습니다.
