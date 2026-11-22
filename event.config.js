@@ -10,7 +10,7 @@ globalThis.SANTA_EVENT = {
     "여섯 신호를 모두 되찾으면 마지막 화면을 행사 직원에게 보여 주세요."
   ],
   sampleNotice: "",
-  cover: "./assets/cover.jpg",
+  cover: "./assets/santa-wide.jpg",
   missions: [
     {
       id: "snow", zone: "자연의 무늬", title: "얼어붙은 별",

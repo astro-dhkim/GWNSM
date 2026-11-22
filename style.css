@@ -22,12 +22,22 @@ body { margin: 0; min-height: 100vh; color: var(--ivory); background: radial-gra
 .footer { padding-block: 1.5rem; }
 #storage-status { color: var(--gold); }
 .hero, .panel, .progress-card { border: 1px solid var(--border); border-radius: 1.2rem; }
-.hero { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; min-height: 35rem; background: #6d202c; }
-.hero-image { display: block; width: 100%; height: 100%; max-height: 42rem; object-fit: cover; object-position: center; }
-.hero-copy { align-self: center; grid-column: 1; grid-row: 1; padding: clamp(1.5rem, 5vw, 4rem); }
+.hero { max-width: 45rem; margin-inline: auto; overflow: hidden; background: #6d202c; }
+.hero-image { display: block; width: 100%; height: auto; }
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(.65rem, 2vw, 1rem);
+  padding: clamp(1.3rem, 4vw, 2.5rem);
+  text-align: center;
+}
+.hero-copy .eyebrow { margin: 0; }
+.hero-copy .lead { max-width: 38ch; margin: 0; line-height: 1.55; word-break: keep-all; }
+.hero-copy .primary { margin-top: .35rem; min-width: 9rem; }
 h1, h2, p { margin-top: 0; overflow-wrap: anywhere; }
 h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.055em; line-height: 1.12; margin-bottom: 1.25rem; word-break: keep-all; }
-.hero h1 { font-size: clamp(2.8rem, 6.5vw, 5.3rem); }
+.hero h1 { margin: 0; line-height: 1.14; font-size: clamp(1.9rem, 5.2vw, 3.45rem); text-wrap: balance; }
 .eyebrow { color: var(--gold); font-weight: 800; font-size: .88rem; letter-spacing: .08em; margin-bottom: .65rem; }
 .lead, .prompt { line-height: 1.75; font-size: 1.05rem; }
 .small { font-size: .875rem; opacity: .84; margin: 1rem 0 0; }
@@ -70,10 +80,7 @@ button:hover { filter: brightness(1.12); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 700px) {
   .wrap { width: calc(100% - 1.5rem); }
-  .hero, .mission-layout { grid-template-columns: 1fr; }
-  .hero { min-height: 0; }
-  .hero-image { height: clamp(13rem, 56vw, 23rem); object-position: center 46%; }
-  .hero-copy { grid-row: auto; }
+  .mission-layout { grid-template-columns: 1fr; }
   .mission-layout { gap: .75rem; }
   .mission-sidebar { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
 }
