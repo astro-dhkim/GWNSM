@@ -9,7 +9,7 @@ globalThis.SANTA_EVENT = {
     "확대 사진과 힌트를 보고 실제 전시물을 찾아보세요. 전시물 이름을 입력할 때마다 생명 신호 하나가 돌아옵니다.",
     "여섯 신호를 모두 되찾으면 마지막 화면을 행사 직원에게 보여 주세요."
   ],
-  sampleNotice: "시연용 전시물 사진과 문제입니다.",
+  sampleNotice: "",
   cover: "./assets/cover.jpg",
   missions: [
     {
